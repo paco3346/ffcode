@@ -4,7 +4,7 @@
 @font-face {
 	font-family: 'GentiumBasicRegular';
 	src: url('GenBasR.eot');
-	src: local('Gentium Basic'), local('GentiumBasic'), url('GenBasR.woff') format('woff'), url('GenBasR.ttf') format('truetype'), url('GenBasR.svg#GentiumBasic') format('svg');
+	src: local('Gentium Basic'), local('GentiumBasic'), url('../GenBasR.woff') format('woff'), url('GenBasR.ttf') format('truetype'), url('GenBasR.svg#GentiumBasic') format('svg');
 }
 
 #events{
@@ -63,6 +63,15 @@
     box-shadow: 5px 5px 10px 0px rgba(130, 180, 200, 1);
 }
 
+.event-view-featured{
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background-image: url('../images/star_16.png');
+    width: 16px;
+    height: 16px;
+}
+
 .event-view-type{
     font-size: 1.5em;
     width: 25%;
@@ -113,21 +122,9 @@
     color: #333333;
 }
 
-.event-view-album-loading{
-    background: url(album_loading.gif) no-repeat;
-    width: 94px;
-    height: 44px;
-    position: relative;
-    background-position-y: 20px;
-    background-color: rgba(194, 194, 194, 0.5);
-    border: 1px solid #BBB;
-    margin-left: -5px;
-    margin-top: -2px;
-}
-
 .event-view-onlineItem{
     float: right;
-    background: url(icons/online_shop.png) no-repeat;
+    background: url(../icons/online_shop.png) no-repeat;
     width: 40px;
     height: 48px;
     clear: right;
@@ -517,4 +514,17 @@
 
 #map img {
     max-width: none !important;
+}
+
+#photoViewer {
+    display: block;
+    position: fixed;
+    width: 50%;
+    height: 50%;
+    top: 25%;
+    left: 25%;
+    background: white;
+    border: none;
+    -webkit-box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 1);
+    box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 1);
 }
