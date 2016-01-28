@@ -3,17 +3,50 @@ var eventCollection;
 var filterCollection;
 var storeTypeCollection;
 var filtersApplied = {};
-var isMSIE = /*@cc_on!@*/0;
+//var isMSIE = /*@cc_on!@*/0;
 
 var driveListUrl = 'https://drive.google.com/embeddedfolderview?id=';
 var parser = document.createElement('a');
 var sheetsUrl = 'https://spreadsheets.google.com/feeds/list/';
 var googleSheetId = '1EPzBHuhpMeTMAV6R_xPzyDmYFK1msH16kh0Hx1ZvgMQ';
-var eventsSheetIndex = 1;
-var filtersSheetIndex = 2;
-var typesSheetIndex = 3;
 
-if(window.self != window.top) var socket = new easyXDM.Socket({});
+var googleSheetConfig = {
+    events: {
+        columns: {
+            startdate: 'Start Date',
+            enddate: 'End Date',
+            name: 'Store Name',
+            location: 'Location',
+            publishdate: 'Publish Date',
+            unpublishdate: 'Unpublish Date',
+            state: 'State',
+            city: 'City',
+            type: 'Project Type',
+            album: 'Photos',
+            featured: 'featured'
+        },
+        sheetIndex: 1
+    },
+    types: {
+        columns: {
+            name: 'name',
+            icon: 'icon'
+        },
+        sheetIndex: 3
+    },
+    filters: {
+        columns: {
+            column: 'column',
+            name: 'name',
+            order: 'order',
+            label: 'label',
+            type: 'type'
+        },
+        sheetIndex: 2
+    }
+};
+
+//if(window.self != window.top) var socket = new easyXDM.Socket({});
 
 var script = function(){
 
@@ -27,40 +60,35 @@ var script = function(){
     });
 
     //define primitives
-
     var statesInUse = [];
     var citiesInUse = [];
 
     //define all templates
     var eventTemplate = '{{#if featured}}<div class="event-view-featured" title="This is a featured listing"></div>{{/if}}'
-        +'<span class="event-view-type">{{type}}</span>'
+        +'<span class="event-view-description">{{description}}</span>'
         +'<div class="event-view-date"><span>{{start}}</span> - <span>{{end}}</span></div>'
         +'<div class="event-view-location"><span>{{city}}</span>, <span>{{state}}</span></div>'
-        +'<div class="event-view-expand ui-icon ui-icon-circle-triangle-e"></div>'
+        //+'<div class="event-view-expand ui-icon ui-icon-circle-triangle-e"></div>'
         +'<div class="event-view-folder">'
-            +'<span class="event-listing-description">{{description}}</span>'
+            +'<span class="event-view-type">{{type}}</span>'
             +'<div class="event-view-right">'
                 +'{{#if album}}'
                     +'<span class="event-view-album"><a class="event-view-album-href" href="#">View Album</a></span>'
                     +'<div class="images"></div>'
                 +'{{/if}}'
-                +'{{#if onlineItem}}'
+                /*+'{{#if onlineItem}}'
                     +'<div class="event-view-onlineItem" title="Some items are available on our online store"></div>'
-                +'{{/if}}'
+                +'{{/if}}'*/
             +'</div>'
         +'</div>';
-
 
     var filterCollectionTemplate = '<div id="filterButton">View Filter</div>'
         +'<div class="filter-collection-pane">'
             +'<div id="filterMenuButton">Add Filter</div>'
         +'</div>';
 
-
     var eventViewTemplate = Handlebars.compile(eventTemplate);
     var filterCollectionViewTemplate = Handlebars.compile(filterCollectionTemplate);
-
-
 
     //define all event objects
     var EventModel = Backbone.Model.extend({
@@ -112,7 +140,7 @@ var script = function(){
             /*if (this.model.get("featured")) {
                 $(this.el).addClass("event-view-featured");
             }*/
-            iframeResize();
+            //iframeResize();
         },
         toggleFolder: function(e) {
             var button = $(this.el).children(".event-view-expand");
@@ -120,7 +148,7 @@ var script = function(){
             e.stopPropagation();
             $(".event-view-folder").not(".event-view-edit .event-view-folder").slideUp({
                 duration: 'fast',
-                progress: iframeResize
+                //progress: iframeResize
             });
 
             $(".event-view-expand").removeClass("event-view-expanded ui-icon-circle-triangle-s");
@@ -131,7 +159,7 @@ var script = function(){
                 button.addClass("event-view-expanded ui-icon-circle-triangle-s");
                 folder.slideDown({
                     duration: 'fast',
-                    progress: iframeResize
+                    //progress: iframeResize
                 });
             }
         },
@@ -214,16 +242,19 @@ var script = function(){
         checkMapVisibility: function(){
             var visible = map.getBounds().contains(this._marker.getPosition());
             if(visible || this._editing) {
-                $(this.el).show();
+                //$(this.el).show();
+                $(this.el).fadeIn();
                 this.applyFilter();
             } else {
-                $(this.el).hide();
+                //$(this.el).hide();
+                $(this.el).fadeOut();
             }
         },
         zoomToMarker: function() {
             if(this._marker && this._marker.getPosition() && this._marker.getPosition().lat() != 'NaN') {
                 map.setCenter(this._marker.getPosition());
                 map.setZoom(10);
+                checkVisibleMarkers();
             }
         }
     });
@@ -396,7 +427,7 @@ var script = function(){
         toggleView: function() {
             $(".filter-collection-pane", this.el).slideToggle({
                 duration: 'fast',
-                progress: iframeResize
+                //progress: iframeResize
             });
         },
         toggleMenu: function() {
@@ -491,15 +522,15 @@ var script = function(){
 
     function getEvents(){
         var eventData = [];
-        $.getJSON(sheetsUrl + googleSheetId + '/' + eventsSheetIndex + '/public/values?alt=json',  function(data) {
-            console.log(data);
+        $.getJSON(sheetsUrl + googleSheetId + '/' + googleSheetConfig.events.sheetIndex + '/public/values?alt=json',  function(data) {
             $.each(data.feed.entry, function(index, entry) {
-                var type = storeTypeCollection.get(entry.gsx$type.$t);
+                var type = storeTypeCollection.get(getValueFromSheet(entry, 'events', 'type'));
                 if (type == undefined) {
                     type = storeTypeCollection.get(0); //the generic type
                 }
-                if(entry.gsx$album.$t.length) {
-                    parser.href = entry.gsx$album.$t;
+                var albumURL = getValueFromSheet(entry, 'events', 'album');
+                if(albumURL && albumURL.length) {
+                    parser.href = albumURL;
                     var params = parser.search.split('&');
                     var album = '';
                     $.each(params, function(index, param) {
@@ -509,15 +540,17 @@ var script = function(){
                         }
                     });
                 }
+                var location = getValueFromSheet(entry, 'events', 'location');
                 eventData.push(new EventModel({
-                    city: entry.gsx$city.$t,
-                    state: entry.gsx$state.$t,
-                    end_date: new Date(entry.gsx$enddate.$t),
-                    start_date: new Date(entry.gsx$startdate.$t),
-                    location: JSON.parse(entry.gsx$location.$t.length ? entry.gsx$location.$t : '{}'),
-                    publish_date: new Date(entry.gsx$publishdate.$t),
-                    unpublish_date: new Date(entry.gsx$unpublishdate.$t),
-                    featured: entry.gsx$featured.$t == "TRUE" ? true : false,
+                    city: getValueFromSheet(entry, 'events', 'city'),
+                    state: getValueFromSheet(entry, 'events', 'state'),
+                    description: getValueFromSheet(entry, 'events', 'name'),
+                    end_date: new Date(getValueFromSheet(entry, 'events', 'enddate')),
+                    start_date: new Date(getValueFromSheet(entry, 'events', 'startdate')),
+                    location: JSON.parse((location && location.length) ? location : '{}'),
+                    publish_date: new Date(getValueFromSheet(entry, 'events', 'publishdate')),
+                    unpublish_date: new Date(getValueFromSheet(entry, 'events', 'unpublishdate')),
+                    featured: getValueFromSheet(entry, 'events', 'featured') == "TRUE" ? true : false,
                     store_type: type,
                     album: album
                 }));
@@ -529,13 +562,13 @@ var script = function(){
 
     function getFilters(){
         var filterData = [];
-        $.getJSON(sheetsUrl + googleSheetId + '/' + filtersSheetIndex + '/public/values?alt=json',  function(data) {
+        $.getJSON(sheetsUrl + googleSheetId + '/' + googleSheetConfig.filters.sheetIndex + '/public/values?alt=json',  function(data) {
             $.each(data.feed.entry, function(index, entry) {
                 filterData.push(new EventModel({
-                    column: entry.gsx$column.$t,
-                    name: entry.gsx$name.$t,
-                    label: entry.gsx$label.$t,
-                    type: entry.gsx$type.$t
+                    column: getValueFromSheet(entry, 'filters', 'column'),
+                    name: getValueFromSheet(entry, 'filters', 'name'),
+                    label: getValueFromSheet(entry, 'filters', 'label'),
+                    type: getValueFromSheet(entry, 'filters', 'type')
                 }));
             });
             filterCollection.add(filterData);
@@ -545,12 +578,12 @@ var script = function(){
 
     function getStoreTypes(){
         var storeTypes = [];
-        $.getJSON(sheetsUrl + googleSheetId + '/' + typesSheetIndex + '/public/values?alt=json',  function(data) {
+        $.getJSON(sheetsUrl + googleSheetId + '/' + googleSheetConfig.types.sheetIndex + '/public/values?alt=json',  function(data) {
             $.each(data.feed.entry, function(index, entry) {
                 storeTypes.push(new EventModel({
-                    id: entry.gsx$name.$t,
-                    name: entry.gsx$name.$t,
-                    icon: entry.gsx$icon.$t
+                    id: getValueFromSheet(entry, 'types', 'name'),
+                    name: getValueFromSheet(entry, 'types', 'name'),
+                    icon: getValueFromSheet(entry, 'types', 'icon')
                 }));
             });
             storeTypeCollection.add(storeTypes);
@@ -562,7 +595,7 @@ var script = function(){
 
     getStoreTypes();
     getFilters();
-    iframeResize();
+    //iframeResize();
 };
 
 function checkAvailableEventsMessage(){
@@ -586,7 +619,6 @@ function setupMap(){
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(pos) {
-            console.log(pos.coords.latitude, pos.coords.longitude);
             map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
             map.setZoom(5);
         });
@@ -602,73 +634,19 @@ function checkVisibleMarkers() {
     checkAvailableEventsMessage();
 }
 
-function iframeResize() {
+/*function iframeResize() {
     if(socket) socket.postMessage($('body').height());
-}
+}*/
 
-function loadJSDependencies(callback) {
-    var deps = [
-        '{ff}jquery-1.8.3.js',
-        '{ff}jquery-ui-1.9.2.custom.min.js',
-        '{ff}underscore-min.js',
-        '{ff}backbone.js',
-        '{ff}handlebars.js',
-        '{ff}chosen.jquery.min.js'
-    ];
-
-    var path = 'https://fixturefinders.parseapp.com/';
-
-    scriptsLoaded = 0;
-
-    var scriptLoaded = function(){
-        scriptsLoaded++;
-        if(deps[scriptsLoaded]) loadScript(deps[scriptsLoaded]);
-        else callback();
-    };
-
-    var loadScript = function(script){
-        var js = document.createElement("script");
-
-        js.type = "text/javascript";
-        js.src = script.replace('{ff}', path);
-
-        document.body.appendChild(js);
-
-        //js.onreadystatechange = scriptLoaded;
-        /*js.onreadystatechange = function () {
-            console.log(this.readyState);
-            if (this.readyState == 'complete' || this.readyState == 'loaded') {
-                scriptLoaded();
-            }
-        };*/
-        js.onload = scriptLoaded;
-    };
-
-    loadScript(deps[0]);
-}
-
-function loadCSS() {
-    var path = 'https://fixturefinders.parseapp.com/';
-
-    files = [
-        '{ff}ui-darkness/jquery-ui-1.8.22.custom.css',
-        '{ff}chosen.css',
-        '{ff}style.css'
-    ];
-
-    for(var i=0; i<files.length; i++) {
-        document.write('<link rel="stylesheet" type="text/css" href="'+files[i].replace("{ff}", path)+'">');
+function getValueFromSheet(entry, sheet, column) {
+    try {
+        //convert the sheet name the way google does when creating the json response
+        var sheetsColumnName = googleSheetConfig[sheet].columns[column].toLowerCase().replace(/[\s_-]/, '');
+        return entry['gsx$' + sheetsColumnName].$t;
+    } catch (e) {
+        return null;
     }
 }
-
-/*if(typeof jQuery != 'undefined') $(function(){
-    /*if(isMSIE)*/ /*setupMap();
-    $('body').css("overflow", "hidden");
-});
-else {
-    loadJSDependencies(setupMap);
-    loadCSS();
-}*/
 
 $(function() {
     setupMap();
