@@ -2,12 +2,12 @@
 
 /* basics */
 @font-face {
-	font-family: 'GentiumBasicRegular';
-	src: url('GenBasR.eot');
-	src: local('Gentium Basic'), local('GentiumBasic'), url('../GenBasR.woff') format('woff'), url('GenBasR.ttf') format('truetype'), url('GenBasR.svg#GentiumBasic') format('svg');
+    font-family: 'GentiumBasicRegular';
+    src: url('GenBasR.eot');
+    src: local('Gentium Basic'), local('GentiumBasic'), url('../GenBasR.woff') format('woff'), url('GenBasR.ttf') format('truetype'), url('GenBasR.svg#GentiumBasic') format('svg');
 }
 
-#events{
+#events {
     background: #FFF;
     overflow: hidden;
     width: 100%;
@@ -15,27 +15,27 @@
     position: relative;
 }
 
-.images{
+.images {
     display: none;
 }
 
-.ui-dialog{
+.ui-dialog {
     font-size: .9em;
 }
 
-.ui-menu-item{
+.ui-menu-item {
     cursor: pointer;
 }
 
 /* map stuff */
-#map{
+#map {
     width: 100%;
     height: 350px;
 }
 
 /* buttons */
 
-#addEventButton{
+#addEventButton {
     position: absolute;
     margin-top: -32px;
     left: 175px;
@@ -44,7 +44,7 @@
 
 /* event stuff */
 
-.event-view{
+.event-view {
     background: #FFF;
     width: 80%;
     margin: 0 auto 5px auto;
@@ -58,12 +58,12 @@
     -webkit-transition: -webkit-box-shadow .25s;
 }
 
-.event-view:hover{
+.event-view:hover {
     -webkit-box-shadow: 5px 5px 10px 0px rgba(130, 180, 200, 1);
     box-shadow: 5px 5px 10px 0px rgba(130, 180, 200, 1);
 }
 
-.event-view-featured{
+.event-view-featured {
     position: absolute;
     top: 4px;
     left: 4px;
@@ -72,57 +72,58 @@
     height: 16px;
 }
 
-.event-view-type{
-    font-size: 1.5em;
+.event-view-description {
+    font-size: 2em;
     width: 25%;
     display: block;
     float: left;
 }
 
-.event-view-date{
+.event-view-date {
     display: inline-block;
     top: 15px;
     margin-left: 1em;
     width: 35%;
 }
 
-.event-view-location{
+.event-view-location {
     display: inline-block;
     top: 15px;
     margin-left: 1em;
     width: 25%;
 }
 
-.event-view-expand{
+.event-view-expand {
     clear: left;
     cursor: pointer;
 }
 
-.event-view-expand:hover{
+.event-view-expand:hover {
     background-image: url(ui-darkness/images/ui-icons_222222_256x240.png);
 }
 
-.event-view-folder{
-    display: none;
+.event-view-folder {
+    /*display: none;*/
+    clear: left;
 }
 
-.event-view-right{
+.event-view-right {
     position: absolute;
     top: 5px;
     right:10px;
 }
 
-.event-view-album{
+.event-view-album {
     float:right;
     margin-right: 8px;
 }
 
-.event-view-album-href{
+.event-view-album-href {
     text-decoration: none;
     color: #333333;
 }
 
-.event-view-onlineItem{
+.event-view-onlineItem {
     float: right;
     background: url(../icons/online_shop.png) no-repeat;
     width: 40px;
@@ -132,73 +133,24 @@
     margin-right: 5px;
 }
 
-.event-view-edit-button{
-    position: absolute;
-    bottom: .5em;
-    right: .5em;
-}
-
-.event-view-new-button{
+.event-view-new-button {
     position: absolute;
     margin-top: -32px;
     font-size: 14px;
     left: 13em;
 }
 
-.event-view .ui-button{
+.event-view .ui-button {
     font-size: .9em;
 }
 
-.event-view-edit-div-line{
-    width: 80%;
-    margin: .5em 0;
-}
-
-.event-view-edit-div-line label{
-    width: 20%;
-    margin-right: 2%;
-    text-align: right;
-    display: inline-block;
-}
-
-.event-view-edit-div-line input{
-    width: 20%;
-    display: inline-block;
-}
-
-.event-view-edit-div-line{
-    width: 100%;
-}
-
-.event-view-description-edit{
-    white-space: normal !important;
-    height: auto !important;
-    line-height: 1.5em !important;
-    padding: 8px !important;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.event-view-edit-button-container{
-    overflow: hidden;
-    margin-top: 1em;
-}
-
-.event-view-edit-button-container .ui-button{
-    float: right;
-}
-
-
-
 /* filter stuff */
 
-.filter-collection-view{
+.filter-collection-view {
     position: relative;
 }
 
-.filter-collection-pane{
+.filter-collection-pane {
     width: 80%;
     margin: 0 auto;
     padding: 1em;
@@ -208,14 +160,14 @@
     display: none;
 }
 
-#filterButton{
+#filterButton {
     position: absolute;
     margin-top: -32px;
     left: 5.5em;
     font-size: 14px;
 }
 
-#filterMenuButton{
+#filterMenuButton {
     display: inline-block;
     position: absolute;
     top: .4em;
@@ -223,7 +175,7 @@
     border: 1px solid #CCC;
 }
 
-.filter-collection-menu-view{
+.filter-collection-menu-view {
     display: none;
     width: 100px;
     font-size: .8em;
@@ -233,60 +185,59 @@
     right: .5em;
 }
 
-.filter-view{
+.filter-view {
     float: left;
     margin-right: .5em;
 }
 
-.filter-inventory{
+.filter-inventory {
     padding: 0 .5em;
     cursor: pointer;
 }
 
-.remove-filter-icon{
+.remove-filter-icon {
     position: absolute;
     left: -8px;
     top: -8px;
     cursor: pointer;
 }
 
-.remove-filter-icon:hover{
+.remove-filter-icon:hover {
     background-image: url(ui-darkness/images/ui-icons_a83300_256x240.png);
 }
 
-
 /* filter fancy input stuff */
 
-.fancy-input{
-	background-color: #ffffff;
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0 );
-	background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(20%, #ffffff), color-stop(50%, #f6f6f6), color-stop(52%, #eeeeee), color-stop(100%, #f4f4f4));
-	background-image: -webkit-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
-	background-image: -moz-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
-	background-image: -o-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
-	background-image: linear-gradient(#ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	-moz-background-clip: padding;
-	-webkit-background-clip: padding-box;
-	background-clip: padding-box;
-	border: 1px solid #aaaaaa;
-	-webkit-box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
-	-moz-box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
-	box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
-	white-space: nowrap;
-	position: relative;
-	height: 23px;
-	line-height: 24px;
-	padding: 0 0 0 8px;
-	color: rgb(68, 68, 68);
-	text-decoration: none;
-	font-size: 13px !important;
-	font: inherit;
+.fancy-input {
+    background-color: #ffffff;
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0 );
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(20%, #ffffff), color-stop(50%, #f6f6f6), color-stop(52%, #eeeeee), color-stop(100%, #f4f4f4));
+    background-image: -webkit-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    background-image: -moz-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    background-image: -o-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    background-image: linear-gradient(#ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #aaaaaa;
+    -webkit-box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+    -moz-box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+    box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+    white-space: nowrap;
+    position: relative;
+    height: 23px;
+    line-height: 24px;
+    padding: 0 0 0 8px;
+    color: rgb(68, 68, 68);
+    text-decoration: none;
+    font-size: 13px !important;
+    font: inherit;
 }
 
-.fancy-input input{
+.fancy-input input {
     border: none;
     background: transparent;
     height: 100%;
@@ -294,11 +245,11 @@
     cursor: pointer;
 }
 
-.fancy-input input:focus{
+.fancy-input input:focus {
     outline: none;
 }
 
-.fancy-input .filter-view-title{
+.fancy-input .filter-view-title {
     margin-left: -.3em;
     padding-right: .3em;
     display: block;
@@ -310,11 +261,11 @@
 
 /* special stuff to make chosen work inside our filter view */
 
-.chosen-container.viewing{
+.chosen-container.viewing {
     width: auto !important;
 }
 
-.chosen-container-single .chosen-single.viewing{
+.chosen-container-single .chosen-single.viewing {
     background: none !important;
     border: none !important;
     height: auto !important;
@@ -323,193 +274,98 @@
     -moz-box-shadow: none !important;
 }
 
-.chosen-container .chosen-drop.viewing{
+.chosen-container .chosen-drop.viewing {
     width: auto !important;
 }
 
-
-/* login stuff */
-
-.login-view .error{
-    width: 100%;
-    display: block;
-    text-align: center;
-    margin-bottom: .5em;
-}
-
-.login-view input{
-    float: right;
-    clear: right;
-}
-
-.login-view label{
-    float: right;
-    margin-right: 1em;
-}
-
-
-
-
-
-
-
-
-
-
-
-#event-listings{
+#event-listings {
     height: 400px;
     overflow-x: hidden;
     overflow-y: scroll;
     padding-top: 10px;
 }
 
-
-
-
-
-.event-listing-edit .event-listing-location{
-	position: relative;
-	top: 4em;
+.event-view-type {
+    margin: .5em 0 .5em 2em;
+    width: 60%;
+    display: inline-block;
+    min-width: 400px;
+    font-size: 1.2em;
 }
 
-.event-listing-description{
-	margin: 1em 0 1em 1em;
-	width: 60%;
-	display: inline-block;
-	min-width: 400px;
+/*.event-listing-onlineItem-label {
+    float: right;
+    margin-top: 10px;
+    display: inline-block;
+}*/
+
+.event-view-inventory {
+    display: inline-block;
+    width: 30%;
 }
 
-
-
-
-.event-listing-onlineItem-label{
-	float: right;
-	margin-top: 10px;
-	display: inline-block;
+.event-view-inventory .categoryHeader {
+    list-style: none;
+    font-weight: bold;
+    margin-left: -30px;
+    font-size: 1.1em;
 }
 
-.event-listing-inventory{
-	display: inline-block;
-	width: 30%;
+#event-listing-none {
+    color: #666;
+    font-family: 'GentiumBasicRegular', Tahoma, Geneva, sans-serif;
+    text-align: center;
+    width: 100%;
+    display: block;
+    font-size: 2em;
 }
 
-.event-listing-inventory .categoryHeader{
-	list-style: none;
-	font-weight: bold;
-	margin-left: -30px;
-	font-size: 1.1em;
+.event-listing-folder {
+    display: none;
 }
 
-#event-listing-none{
-	color: #666;
-	font-family: 'GentiumBasicRegular', Tahoma, Geneva, sans-serif;
-	text-align: center;
-	width: 100%;
-	display: block;
-	font-size: 2em;
+.inventoryColumn {
+    float: left;
+    margin-left: 20px;
+    width: 30%;
 }
 
-.event-listing-folder{
-	display: none;
+.inventoryColumn .categoryHeader {
+    font-weight: bold;
 }
 
-.event-listing-edit .event-listing-folder{
-	display: inline-block !important;
+.inventoryColumn input {
+    margin-left: 20px;
 }
 
-
-.event-listing-edit .event-listing-expand{
-	display: none !important;
+.inventoryFilterButtonset {
+    display: inline-block;
 }
 
-.event-listing-edit .ui-button{
-	float: right;
+.inventoryColumn label {
+    margin: 2px 0;
+    display: inline-block;
 }
-
-.event-listing-edit .publish-date{
-	clear: left;
-}
-
-.event-listing-edit .event-listing-folder{
-	width: 100%;
-}
-
-.event-listing-edit textarea{
-	width: 100%;
-	min-height: 80px;
-}
-
-.event-listing-edit .event-listing-album-label{
-	margin-top: 4px;
-	display: inline-block;
-}
-
-.event-listing-edit .inventoryColumn{
-	margin-top: 20px;
-}
-
-.editButton{
-	display: none;
-	position: absolute;
-	right: 10px;
-	bottom: 10px;
-}
-
-.admin .editButton{
-	display: inline-block;
-}
-
-
-
-
-
-
-.inventoryColumn{
-	float: left;
-	margin-left: 20px;
-	width: 30%;
-}
-
-.inventoryColumn .categoryHeader{
-	font-weight: bold;
-}
-
-.inventoryColumn input{
-	margin-left: 20px;
-}
-
-.inventoryFilterButtonset{
-	display: inline-block;
-}
-
-.inventoryColumn label{
-	margin: 2px 0;
-	display: inline-block;
-}
-
 
 @media screen and (max-width: 640px) {
-    .event-view-type{
+    .event-view-description {
         width: 100%;
         margin-bottom: .3em;
     }
 
-    .event-view-date{
+    .event-view-date {
         margin-left: 2em;
         clear: left;
         width: 50%;
     }
 
-    .event-view-location{
+    .event-view-location {
         width: 30%;
     }
 
-    .event-view-expand{
+    .event-view-expand {
         zoom: 2;
     }
-
-
 }
 
 #map img {
