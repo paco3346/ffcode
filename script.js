@@ -3,19 +3,17 @@ var eventCollection;
 var filterCollection;
 var storeTypeCollection;
 var filtersApplied = {};
-//var isMSIE = /*@cc_on!@*/0;
 
 var driveListUrl = 'https://drive.google.com/embeddedfolderview?id=';
 var parser = document.createElement('a');
 var sheetsUrl = 'https://spreadsheets.google.com/feeds/list/';
-var googleSheetId = '1EPzBHuhpMeTMAV6R_xPzyDmYFK1msH16kh0Hx1ZvgMQ';
+var googleSheetId = '122XCPu63Q-yZfUbCQwzSgGkw0XibRWvr1zDasattFhE';
 
 var googleSheetConfig = {
     events: {
         columns: {
             startdate: 'Start Date',
             enddate: 'End Date',
-            name: 'Store Name',
             location: 'Location',
             publishdate: 'Publish Date',
             unpublishdate: 'Unpublish Date',
@@ -23,16 +21,18 @@ var googleSheetConfig = {
             city: 'City',
             type: 'Project Type',
             album: 'Photos',
-            featured: 'featured'
+            featured: 'featured',
+            description: 'Description'
         },
-        sheetIndex: 1
+        sheetIndex: 3,
+        rowsToIgnore: 1
     },
     types: {
         columns: {
-            name: 'name',
-            icon: 'icon'
+            name: 'Store Type',
+            icon: 'Icon'
         },
-        sheetIndex: 3
+        sheetIndex: 9
     },
     filters: {
         columns: {
@@ -42,7 +42,7 @@ var googleSheetConfig = {
             label: 'label',
             type: 'type'
         },
-        sheetIndex: 2
+        sheetIndex: 10
     }
 };
 
@@ -65,12 +65,12 @@ var script = function(){
 
     //define all templates
     var eventTemplate = '{{#if featured}}<div class="event-view-featured" title="This is a featured listing"></div>{{/if}}'
-        +'<span class="event-view-description">{{description}}</span>'
+        +'<span class="event-view-type">{{type}}</span>'
         +'<div class="event-view-date"><span>{{start}}</span> - <span>{{end}}</span></div>'
         +'<div class="event-view-location"><span>{{city}}</span>, <span>{{state}}</span></div>'
         //+'<div class="event-view-expand ui-icon ui-icon-circle-triangle-e"></div>'
         +'<div class="event-view-folder">'
-            +'<span class="event-view-type">{{type}}</span>'
+            +'<span class="event-view-description">{{description}}</span>'
             +'<div class="event-view-right">'
                 +'{{#if album}}'
                     +'<span class="event-view-album"><a class="event-view-album-href" href="#">View Album</a></span>'
@@ -140,15 +140,13 @@ var script = function(){
             /*if (this.model.get("featured")) {
                 $(this.el).addClass("event-view-featured");
             }*/
-            //iframeResize();
         },
         toggleFolder: function(e) {
             var button = $(this.el).children(".event-view-expand");
             var folder = $(this.el).children(".event-view-folder");
             e.stopPropagation();
             $(".event-view-folder").not(".event-view-edit .event-view-folder").slideUp({
-                duration: 'fast',
-                //progress: iframeResize
+                duration: 'fast'
             });
 
             $(".event-view-expand").removeClass("event-view-expanded ui-icon-circle-triangle-s");
@@ -158,8 +156,7 @@ var script = function(){
             }else if(folder.is(":hidden")){
                 button.addClass("event-view-expanded ui-icon-circle-triangle-s");
                 folder.slideDown({
-                    duration: 'fast',
-                    //progress: iframeResize
+                    duration: 'fast'
                 });
             }
         },
@@ -207,47 +204,63 @@ var script = function(){
             if(this._marker) this._marker.setAnimation(4);
         },
         hide: function() {
-            $(this.el).hide();
+            $(this.el).fadeOut();
             this._marker.setMap(null);
         },
         show: function() {
-            $(this.el).show();
+            $(this.el).fadeIn();
             this._marker.setMap(map);
         },
         applyFilter: function() {
             var self = this;
-            self.show();
+            var actionTaken = false;
             _.each(filtersApplied, function(value, column) {
                 switch(column) {
                     case "store_type":
                         var storeType = self.model.get("store_type");
-                        if(storeType.id != value) self.hide();
+                        if(storeType.id != value) {
+                            self.hide();
+                            actionTaken = true;
+                        }
                         break;
                     case "city":
-                        if(self.model.get("city") != value) self.hide();
+                        if(self.model.get("city") != value) {
+                            self.hide();
+                            actionTaken = true;
+                        }
                         break;
                     case "state":
-                        if(self.model.get("state") != value) self.hide();
+                        if(self.model.get("state") != value) {
+                            self.hide();
+                            actionTaken = true;
+                        }
                         break;
                     case "start_date":
-                        if(self.model.get("start_date") < new Date(value)) self.hide();
+                        if(self.model.get("start_date") < new Date(value)) {
+                            self.hide();
+                            actionTaken = true;
+                        }
                         break;
                     case "end_date":
-                        if(self.model.get("end_date") > new Date(value)) self.hide();
+                        if(self.model.get("end_date") > new Date(value)) {
+                            self.hide();
+                            actionTaken = true;
+                        }
                         break;
                 }
             });
+            if (!actionTaken) {
+                self.show();
+            }
             checkAvailableEventsMessage();
         },
         checkMapVisibility: function(){
+            var self = this;
             var visible = map.getBounds().contains(this._marker.getPosition());
             if(visible || this._editing) {
-                //$(this.el).show();
-                $(this.el).fadeIn();
-                this.applyFilter();
+                self.applyFilter();
             } else {
-                //$(this.el).hide();
-                $(this.el).fadeOut();
+                self.hide();
             }
         },
         zoomToMarker: function() {
@@ -426,8 +439,7 @@ var script = function(){
         },
         toggleView: function() {
             $(".filter-collection-pane", this.el).slideToggle({
-                duration: 'fast',
-                //progress: iframeResize
+                duration: 'fast'
             });
         },
         toggleMenu: function() {
@@ -524,9 +536,8 @@ var script = function(){
         var eventData = [];
         $.getJSON(sheetsUrl + googleSheetId + '/' + googleSheetConfig.events.sheetIndex + '/public/values?alt=json',  function(data) {
             $.each(data.feed.entry, function(index, entry) {
-                var type = storeTypeCollection.get(getValueFromSheet(entry, 'events', 'type'));
-                if (type == undefined) {
-                    type = storeTypeCollection.get(0); //the generic type
+                if (index < googleSheetConfig.events.rowsToIgnore) {
+                    return;
                 }
                 var albumURL = getValueFromSheet(entry, 'events', 'album');
                 if(albumURL && albumURL.length) {
@@ -540,13 +551,23 @@ var script = function(){
                         }
                     });
                 }
+                var type = storeTypeCollection.get(getValueFromSheet(entry, 'events', 'type'));
                 var location = getValueFromSheet(entry, 'events', 'location');
+                var stateParts = getValueFromSheet(entry, 'events', 'state').split('(');
+                try {
+                    var state = stateParts[1].substring(0, 2);
+                } catch (e) {}
+                var startDate = getValueFromSheet(entry, 'events', 'startdate');
+                var endDate = getValueFromSheet(entry, 'events', 'enddate');
+                if (empty(type)||empty(location)||empty(state)||empty(startDate)||startDate=='?') {
+                    return;
+                }
                 eventData.push(new EventModel({
                     city: getValueFromSheet(entry, 'events', 'city'),
-                    state: getValueFromSheet(entry, 'events', 'state'),
-                    description: getValueFromSheet(entry, 'events', 'name'),
-                    end_date: new Date(getValueFromSheet(entry, 'events', 'enddate')),
-                    start_date: new Date(getValueFromSheet(entry, 'events', 'startdate')),
+                    state: state,
+                    description: getValueFromSheet(entry, 'events', 'description'),
+                    end_date: empty(endDate) ? '' : new Date(endDate),
+                    start_date: new Date(startDate),
                     location: JSON.parse((location && location.length) ? location : '{}'),
                     publish_date: new Date(getValueFromSheet(entry, 'events', 'publishdate')),
                     unpublish_date: new Date(getValueFromSheet(entry, 'events', 'unpublishdate')),
@@ -595,7 +616,6 @@ var script = function(){
 
     getStoreTypes();
     getFilters();
-    //iframeResize();
 };
 
 function checkAvailableEventsMessage(){
@@ -614,8 +634,7 @@ function setupMap(){
     };
 
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
-    google.maps.event.addListener(map, 'center_changed', checkVisibleMarkers);
-    google.maps.event.addListener(map, 'zoom_changed', checkVisibleMarkers);
+    google.maps.event.addListener(map, 'idle', checkVisibleMarkers);
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(pos) {
@@ -634,10 +653,6 @@ function checkVisibleMarkers() {
     checkAvailableEventsMessage();
 }
 
-/*function iframeResize() {
-    if(socket) socket.postMessage($('body').height());
-}*/
-
 function getValueFromSheet(entry, sheet, column) {
     try {
         //convert the sheet name the way google does when creating the json response
@@ -646,6 +661,10 @@ function getValueFromSheet(entry, sheet, column) {
     } catch (e) {
         return null;
     }
+}
+
+function empty(val) {
+    return (val == undefined || val == '');
 }
 
 $(function() {
