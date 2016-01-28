@@ -72,7 +72,7 @@
     height: 16px;
 }
 
-.event-view-description {
+.event-view-type {
     font-size: 2em;
     width: 25%;
     display: block;
@@ -285,12 +285,11 @@
     padding-top: 10px;
 }
 
-.event-view-type {
+.event-view-description {
     margin: .5em 0 .5em 2em;
     width: 60%;
     display: inline-block;
     min-width: 400px;
-    font-size: 1.2em;
 }
 
 /*.event-listing-onlineItem-label {
