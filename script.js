@@ -539,18 +539,6 @@ var script = function(){
                 if (index < googleSheetConfig.events.rowsToIgnore) {
                     return;
                 }
-                var albumURL = getValueFromSheet(entry, 'events', 'album');
-                if(albumURL && albumURL.length) {
-                    parser.href = albumURL;
-                    var params = parser.search.split('&');
-                    var album = '';
-                    $.each(params, function(index, param) {
-                        var paramParts = param.split('=');
-                        if (['?id', 'id'].indexOf(paramParts[0]) != -1) {
-                            album = paramParts[1];
-                        }
-                    });
-                }
                 var type = storeTypeCollection.get(getValueFromSheet(entry, 'events', 'type'));
                 var location = getValueFromSheet(entry, 'events', 'location');
                 var stateParts = getValueFromSheet(entry, 'events', 'state').split('(');
@@ -573,7 +561,7 @@ var script = function(){
                     unpublish_date: new Date(getValueFromSheet(entry, 'events', 'unpublishdate')),
                     featured: getValueFromSheet(entry, 'events', 'featured') == "TRUE" ? true : false,
                     store_type: type,
-                    album: album
+                    album: getFolderId(getValueFromSheet(entry, 'events', 'album'))
                 }));
             });
             eventCollection.add(eventData);
@@ -665,6 +653,32 @@ function getValueFromSheet(entry, sheet, column) {
 
 function empty(val) {
     return (val == undefined || val == '');
+}
+
+function getFolderId(val) {
+    if (empty(val)) {
+        return null;
+    }
+    console.log(val);
+    var retVal = null;
+    parser.href = val;
+    var params = parser.search.split('&');
+    //first search the id as a GET parameter
+    $.each(params, function(index, param) {
+        var paramParts = param.split('=');
+        if (['?id', 'id'].indexOf(paramParts[0]) != -1) {
+            retVal = paramParts[1];
+        }
+    });
+    if (!empty(retVal)) return retVal;
+    //otherwise look for it in the format of /folders/{id}
+    var urlParts = val.split('/');
+    $.each(urlParts, function(index, param) {
+        if (param == 'folders') {
+            retVal = urlParts[index + 1];
+        }
+    });
+    return retVal;
 }
 
 $(function() {
