@@ -2,12 +2,13 @@ var map;
 var eventCollection;
 var filterCollection;
 var storeTypeCollection;
+var inventoryCollection;
 var filtersApplied = {};
 
 var driveListUrl = 'https://drive.google.com/embeddedfolderview?id=';
 var parser = document.createElement('a');
 var sheetsUrl = 'https://spreadsheets.google.com/feeds/list/';
-var googleSheetId = '122XCPu63Q-yZfUbCQwzSgGkw0XibRWvr1zDasattFhE';
+var googleSheetId = '1C6du4tKs4AzzGGHrRsRLuZhHXdS3aOqVAnAkPuPLHnU';
 
 var googleSheetConfig = {
     events: {
@@ -22,17 +23,18 @@ var googleSheetConfig = {
             type: 'Project Type',
             album: 'Photos',
             featured: 'featured',
-            description: 'Description'
+            description: 'Description',
+            inventory: 'Inventory Web App'
         },
         sheetIndex: 3,
-        rowsToIgnore: 1
+        rowsToIgnore: 'od6'
     },
     types: {
         columns: {
             name: 'Store Type',
             icon: 'Icon'
         },
-        sheetIndex: 9
+        sheetIndex: 'oo5ck8a'
     },
     filters: {
         columns: {
@@ -42,23 +44,18 @@ var googleSheetConfig = {
             label: 'label',
             type: 'type'
         },
-        sheetIndex: 10
+        sheetIndex: 'oha9w0'
+    },
+    inventory: {
+        columns: {
+            id: 'id',
+            name: 'item'
+        },
+        sheetIndex: 'oypc1fq'
     }
 };
 
-//if(window.self != window.top) var socket = new easyXDM.Socket({});
-
 var script = function(){
-
-    var iframe = $('#photoViewer').hide();
-    $('body').click(function() {
-        iframe.hide();
-    }).keyup(function(e) {
-       if(e.keyCode == 27) {
-           iframe.hide();
-       }
-    });
-
     //define primitives
     var statesInUse = [];
     var citiesInUse = [];
@@ -73,22 +70,33 @@ var script = function(){
             +'<span class="event-view-description">{{description}}</span>'
             +'<div class="event-view-right">'
                 +'{{#if album}}'
-                    +'<span class="event-view-album"><a class="event-view-album-href" href="#">View Album</a></span>'
-                    +'<div class="images"></div>'
+                    +'<span class="event-view-album">View Album</span>'
                 +'{{/if}}'
                 /*+'{{#if onlineItem}}'
                     +'<div class="event-view-onlineItem" title="Some items are available on our online store"></div>'
                 +'{{/if}}'*/
+                +'{{#if inventory}}'
+                    +'<div class="event-view-inventory">View Inventory</div>'
+                +'{{/if}}'
             +'</div>'
         +'</div>';
+
+    var eventInventoryTemplate = '{{#each inventoryItems}}<div class="inventory-view-listing">'
+        +'<div class="ui-icon ui-icon-circle-check inventory-view-bullet"></div>{{name}}</div>{{/each}}';
 
     var filterCollectionTemplate = '<div id="filterButton">View Filter</div>'
         +'<div class="filter-collection-pane">'
             +'<div id="filterMenuButton">Add Filter</div>'
         +'</div>';
 
+    var inventoryFilterTemplate = '{{#each inventoryItems}}<div class="inventory-view-listing">'
+        +'<input type="checkbox" value="{{id}}" name="inventoryFilterItem" id="inventory_{{id}}" class="inventory-view-checkbox"/>'
+        +'<label for="inventory_{{id}}">{{name}}</label></div>{{/each}}';
+
     var eventViewTemplate = Handlebars.compile(eventTemplate);
+    var eventInventoryViewTemplate = Handlebars.compile(eventInventoryTemplate);
     var filterCollectionViewTemplate = Handlebars.compile(filterCollectionTemplate);
+    var inventoryFilterViewTemplate = Handlebars.compile(inventoryFilterTemplate);
 
     //define all event objects
     var EventModel = Backbone.Model.extend({
@@ -105,14 +113,16 @@ var script = function(){
         className: "event-view",
         events: {
             'click .event-view-expand' : 'toggleFolder',
-            'click .event-view-album-href' : 'openLightbox',
+            'click .event-view-album' : 'openLightbox',
+            'click .event-view-inventory' : 'openInventory',
             'mouseover' : 'hoverOver',
             'mouseleave' : 'hoverOut',
             'click' : 'zoomToMarker'
         },
         initialize: function() {
             _(this).bindAll('render', 'toggleFolder', 'openLightbox', 'createMarker', '_createMarker', 'hoverOver',
-                'hoverOut', 'applyFilter', 'hide', 'show', '_removeMarker', 'checkMapVisibility', 'zoomToMarker');
+                'hoverOut', 'applyFilter', 'hide', 'show', '_removeMarker', 'checkMapVisibility', 'zoomToMarker',
+                'openInventory', 'containsInventoryFilter');
             if(statesInUse.indexOf(this.model.get("state")) == -1) statesInUse.push(this.model.get("state"));
             if(citiesInUse.indexOf(this.model.get("city")) == -1) citiesInUse.push(this.model.get("city"));
             this.model.bind("applyFilter2", this.applyFilter);
@@ -134,7 +144,8 @@ var script = function(){
                 description: this.model.get("description"),
                 album: this.model.get("album"),
                 featured: this.model.get("featured"),
-                onlineItem: this.model.get("hasOnlineItem")
+                onlineItem: this.model.get("hasOnlineItem"),
+                inventory: this.model.get("inventory").length > 0
             }));
             $(this.el).html(e);
             /*if (this.model.get("featured")) {
@@ -163,7 +174,8 @@ var script = function(){
         openLightbox: function(e) {
             e.preventDefault();
             e.stopPropagation();
-            iframe.attr('src', driveListUrl + this.model.get("album") + '#grid').show();
+            var url = driveListUrl + this.model.get("album") + '#grid';
+            eventCollectionView.openLightbox(url);
         },
         createMarker: function() {
             this._removeMarker();
@@ -247,6 +259,12 @@ var script = function(){
                             actionTaken = true;
                         }
                         break;
+                    case "inventory":
+                        if (!self.containsInventoryFilter(value)) {
+                            self.hide();
+                            actionTaken = true;
+                        }
+                        break;
                 }
             });
             if (!actionTaken) {
@@ -269,6 +287,31 @@ var script = function(){
                 map.setZoom(10);
                 checkVisibleMarkers();
             }
+        },
+        openInventory: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            eventCollectionView.openInventoryViewer(this.model.get("inventory"));
+        },
+        containsInventoryFilter: function(filterData) {
+            var self = this;
+            if (empty(filterData.items) || empty(self.model.get("inventory"))) {
+                return false;
+            }
+            for (var i=0; i<filterData.items.length; i++) {
+                var id = filterData.items[i];
+                var item = self.model.get("inventory").get(id);
+                if (filterData.type == 'any' && !empty(item)) {
+                    //for 'any' we only need a single match
+                    return true;
+                } else if (filterData.type == 'all' && empty(item)) {
+                    //for 'all' match any missing item breaks the deal
+                    return false;
+                }
+            }
+            //an 'any' match would have returned true by now
+            //an 'all' match would have returned false by now
+            return filterData.type == 'all';
         }
     });
 
@@ -277,9 +320,14 @@ var script = function(){
         className: 'event-collection-view',
         el: $("#event-listings"),
         initialize: function() {
-            _(this).bindAll('render', 'renderEvent', 'applyFilter');
+            _(this).bindAll('render', 'renderEvent', 'applyFilter', 'openLightbox', 'closeLightbox',
+                'openInventoryViewer', 'closeInventoryViewer', 'setupBodyListener');
             this.collection.bind("fetch", this.render);
             this.collection.bind("applyFilter", this.applyFilter);
+            this.iframe = $('#photoViewer').hide();
+            this.iframeSpinner = $('#photoViewerSpinner').hide();
+            this.inventoryViewer = $('#inventoryViewer').hide();
+            this.setupBodyListener();
         },
         render: function() {
             var self = this;
@@ -300,6 +348,41 @@ var script = function(){
             this.collection.each(function(event) {
                 event.trigger("applyFilter2");
             });
+        },
+        openLightbox: function(url) {
+            this.iframeSpinner.show();
+            this.iframe.attr('src', url).show();
+        },
+        closeLightbox: function() {
+            this.iframe.hide();
+            this.iframe.attr('src', 'about:blank');
+            this.iframeSpinner.hide();
+        },
+        openInventoryViewer: function(inventory) {
+            this.inventoryViewer.empty();
+            this.inventoryViewer.show();
+            this.inventoryViewer.append(eventInventoryViewTemplate({inventoryItems: inventory.toJSON()}));
+        },
+        closeInventoryViewer: function() {
+            this.inventoryViewer.hide();
+        },
+        setupBodyListener: function() {
+            var self = this;
+            this.iframe.load(function () {
+                self.iframeSpinner.hide();
+            });
+            $('body').click(function(e) {
+                //don't close the lightbox if the spinner is clicked
+                if (e.target != self.iframeSpinner[0] && e.target != self.inventoryViewer[0]) {
+                    self.closeLightbox();
+                    self.closeInventoryViewer();
+                }
+            }).keyup(function(e) {
+                if(e.keyCode == 27) {
+                    self.closeLightbox();
+                    self.closeInventoryViewer();
+                }
+            });
         }
     });
 
@@ -319,10 +402,11 @@ var script = function(){
         events: {
             'click .remove-filter-icon' : 'removeFilter',
             'change select' : 'applyFilterSelect',
-            'change input' : 'applyFilterInput'
+            'change input' : 'applyFilterInput',
+            'click .filter-inventory' : 'openInventoryDialog'
         },
         initialize: function() {
-            _(this).bindAll('render', 'renderDate', 'generateFilterTitle', 'removeFilter', 'applyFilterSelect', 'applyFilterInput');
+            _(this).bindAll('render', 'renderDate', 'generateFilterTitle', 'removeFilter', 'applyFilterSelect', 'applyFilterInput', 'openInventoryDialog');
             this.render();
             this.column = this.model.get("column");
         },
@@ -406,6 +490,9 @@ var script = function(){
         applyFilterInput: function() {
             filtersApplied[this.model.get("column")] = $("input", this.el).val();
             eventCollection.trigger("applyFilter");
+        },
+        openInventoryDialog: function() {
+            inventoryCollectionView.open();
         }
     });
 
@@ -507,7 +594,7 @@ var script = function(){
         }
     });
 
-    // define store types
+    //define store types
     var StoreType = Backbone.Model.extend({
         defaults: {
             id: 0,
@@ -517,19 +604,95 @@ var script = function(){
     });
 
     var StoreTypeCollection = Backbone.Collection.extend({
-        model: StoreType
+        model: StoreType,
+        comparator: function(item) {
+            return item.get("name");
+        }
+    });
+
+    //define all inventory objects
+    var InventoryModel = Backbone.Model.extend({
+        defaults: {
+        }
+    });
+
+    var InventoryView = Backbone.View.extend({
+        tagName: "div",
+        className: "inventory-view",
+        events: {
+        },
+        initialize: function() {
+            _(this).bindAll('render');
+            this.render();
+        },
+        render: function() {
+        }
+    });
+
+    var InventoryCollection = Backbone.Collection.extend({
+        model: InventoryModel,
+        comparator: function(item) {
+            return item.get("name");
+        }
+    });
+
+    var InventoryCollectionView = Backbone.View.extend({
+        tagName: "div",
+        className: "inventory-collection-view",
+        el: $('#inventoryFilter'),
+        initialize: function() {
+            _(this).bindAll('render', 'open', 'close', 'applyFilter');
+            this.collection.bind("fetch", this.render);
+        },
+        render: function() {
+            var el = $(this.el);
+            var self = this;
+            el.dialog({
+                autoOpen: false,
+                width: '30%',
+                modal: true,
+                buttons: {
+                    'Apply': function() {
+                        el.dialog("close");
+                        self.applyFilter();
+                    }
+                }
+            });
+            el.append(inventoryFilterViewTemplate({inventoryItems: this.collection.toJSON()}));
+        },
+        open: function() {
+            var el = $(this.el);
+            el.dialog("open");
+        },
+        close: function() {
+            var el = $(this.el);
+            el.dialog("close");
+        },
+        applyFilter: function() {
+            var invFilterType = $('input[name="inventoryFilterType"]:checked').val();
+            var filterItems = [];
+            _.each($('input[name="inventoryFilterItem"]:checked'), function(el) {
+                filterItems.push(el.value);
+            });
+            filtersApplied["inventory"] = {type: invFilterType, items: filterItems};
+            eventCollection.trigger("applyFilter");
+        }
     });
 
     //start bootstrapping
     eventCollection = new EventCollection();
     filterCollection = new FilterCollection();
     storeTypeCollection = new StoreTypeCollection();
+    inventoryCollection = new InventoryCollection();
 
     var filterCollectionView = new FilterCollectionView({
         collection: filterCollection
     });
     var eventCollectionView = new EventCollectionView({
         collection: eventCollection
+    });
+    var inventoryCollectionView = new InventoryCollectionView({
+        collection: inventoryCollection
     });
 
     function getEvents(){
@@ -550,6 +713,12 @@ var script = function(){
                 if (empty(type)||empty(location)||empty(state)||empty(startDate)||startDate=='?') {
                     return;
                 }
+                var inventoryIds = parseInventoryItemsString(getValueFromSheet(entry, 'events', 'inventory'));
+                var eventInventoryCollection = new InventoryCollection();
+                _.each(inventoryIds, function(id) {
+                    eventInventoryCollection.add(inventoryCollection.get(id));
+                });
+                eventInventoryCollection.sort();
                 eventData.push(new EventModel({
                     city: getValueFromSheet(entry, 'events', 'city'),
                     state: state,
@@ -559,9 +728,10 @@ var script = function(){
                     location: JSON.parse((location && location.length) ? location : '{}'),
                     publish_date: new Date(getValueFromSheet(entry, 'events', 'publishdate')),
                     unpublish_date: new Date(getValueFromSheet(entry, 'events', 'unpublishdate')),
-                    featured: getValueFromSheet(entry, 'events', 'featured') == "TRUE" ? true : false,
+                    featured: getValueFromSheet(entry, 'events', 'featured') == "TRUE",
                     store_type: type,
-                    album: getFolderId(getValueFromSheet(entry, 'events', 'album'))
+                    album: getFolderId(getValueFromSheet(entry, 'events', 'album')),
+                    inventory: eventInventoryCollection
                 }));
             });
             eventCollection.add(eventData);
@@ -569,7 +739,7 @@ var script = function(){
         });
     }
 
-    function getFilters(){
+    function getFilters(callback){
         var filterData = [];
         $.getJSON(sheetsUrl + googleSheetId + '/' + googleSheetConfig.filters.sheetIndex + '/public/values?alt=json',  function(data) {
             $.each(data.feed.entry, function(index, entry) {
@@ -582,10 +752,13 @@ var script = function(){
             });
             filterCollection.add(filterData);
             filterCollection.trigger("fetch");
+            if (typeof(callback) === 'function') {
+                callback();
+            }
         });
     }
 
-    function getStoreTypes(){
+    function getStoreTypes(callback) {
         var storeTypes = [];
         $.getJSON(sheetsUrl + googleSheetId + '/' + googleSheetConfig.types.sheetIndex + '/public/values?alt=json',  function(data) {
             $.each(data.feed.entry, function(index, entry) {
@@ -596,14 +769,43 @@ var script = function(){
                 }));
             });
             storeTypeCollection.add(storeTypes);
+            storeTypeCollection.sort();
             storeTypeCollection.trigger("fetch");
-            getEvents();
+            if (typeof(callback) === 'function') {
+                callback();
+            }
         });
     }
 
+    function getInventoryItems(callback) {
+        var inventoryItems = [];
+        $.getJSON(sheetsUrl + googleSheetId + '/' + googleSheetConfig.inventory.sheetIndex + '/public/values?alt=json', function(data) {
+            $.each(data.feed.entry, function(index, entry) {
+                inventoryItems.push(new InventoryModel({
+                    id: getValueFromSheet(entry, 'inventory', 'id'),
+                    name: getValueFromSheet(entry, 'inventory', 'name')
+                }));
+            });
+            inventoryCollection.add(inventoryItems);
+            inventoryCollection.sort();
+            inventoryCollection.trigger("fetch");
+            if (typeof(callback) === 'function') {
+                callback();
+            }
+        });
+    }
 
-    getStoreTypes();
-    getFilters();
+    var numResponses = 0;
+    var numExpectedResponses = 3;
+    var getEventsCallback = function() {
+        numResponses++;
+        if (numExpectedResponses == numResponses) {
+            getEvents();
+        }
+    };
+    getStoreTypes(getEventsCallback);
+    getFilters(getEventsCallback);
+    getInventoryItems(getEventsCallback);
 };
 
 function checkAvailableEventsMessage(){
@@ -644,7 +846,7 @@ function checkVisibleMarkers() {
 function getValueFromSheet(entry, sheet, column) {
     try {
         //convert the sheet name the way google does when creating the json response
-        var sheetsColumnName = googleSheetConfig[sheet].columns[column].toLowerCase().replace(/[\s_-]/, '');
+        var sheetsColumnName = googleSheetConfig[sheet].columns[column].toLowerCase().replace(/[\s_-]/g, '');
         return entry['gsx$' + sheetsColumnName].$t;
     } catch (e) {
         return null;
@@ -659,7 +861,6 @@ function getFolderId(val) {
     if (empty(val)) {
         return null;
     }
-    console.log(val);
     var retVal = null;
     parser.href = val;
     var params = parser.search.split('&');
@@ -679,6 +880,24 @@ function getFolderId(val) {
         }
     });
     return retVal;
+}
+
+function parseInventoryItemsString(val) {
+    if (empty(val)) {
+        return[];
+    }
+    try {
+        var vals = val.split(',');
+        var ret = [];
+        _.each(vals, function(val) {
+            if (!isNaN(val)) {
+                ret.push(parseInt(val));
+            }
+        });
+        return ret;
+    } catch (e) {
+        return [];
+    }
 }
 
 $(function() {

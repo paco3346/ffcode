@@ -1,9 +1,8 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <link rel="STYLESHEET" type="text/css" href="css/ui-darkness/jquery-ui-1.8.22.custom.css" />
 <link rel="stylesheet" type="text/css" href="css/chosen.css" />
 <link rel="STYLESHEET" type="text/css" href="css/style.css" />
 
-<script src="easyXDM.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
 <script type="text/javascript" src="jquery-1.8.3.js"></script>
 <script type="text/javascript" src="jquery-ui-1.9.2.custom.min.js"></script>
@@ -14,12 +13,23 @@
 <script src="script.js" type="text/javascript"></script>
 
 <body>
-<div id = "map"></div>
+<div id="map"></div>
 
-<div id = "events">
+<div id="events">
     <span id="event-listing-none">There are no available events.<br/>Change your filter or zoom out on the map.</span>
     <div id="event-listings"></div>
 </div>
-<iframe id="photoViewer"></iframe>
+<div id="inventoryFilter">
+    <div id="inventoryFilterType">
+        <input type="radio" name="inventoryFilterType" value="all" id="invTypeAll" checked="checked"/>
+        <label for="invTypeAll">Events include all of the following</label>
+        <br>
+        <input type="radio" name="inventoryFilterType" value="any" id="invTypeAny"/>
+        <label for="invTypeAny">Events include any of the following</label>
+    </div>
+</div>
+<div id="inventoryViewer" class="large-overlay large-overlay-shadow"></div>
+<iframe id="photoViewer" class="large-overlay large-overlay-shadow"></iframe>
+<div id="photoViewerSpinner" class="large-overlay"></div>
 
 </body>

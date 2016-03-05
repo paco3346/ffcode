@@ -1,22 +1,45 @@
-
-
-/* basics */
-@font-face {
-    font-family: 'GentiumBasicRegular';
-    src: url('GenBasR.eot');
-    src: local('Gentium Basic'), local('GentiumBasic'), url('../GenBasR.woff') format('woff'), url('GenBasR.ttf') format('truetype'), url('GenBasR.svg#GentiumBasic') format('svg');
+/* Remove this top section. This is for dev purposes to match the production site */
+body {
+    font-family: Arial,Verdana,Sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
 }
 
-#events {
-    background: #FFF;
-    overflow: hidden;
-    width: 100%;
-    padding: 10px 0;
-    position: relative;
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-.images {
-    display: none;
+ul li {
+    color: #303030;
+    font-size: 12px;
+    line-height: 18px;
+    list-style-type: none;
+    padding-left: 5px;
+}
+
+/* overrides to make ui match rest of site */
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-dialog-titlebar{
+    background: #105cb6;
+    border-color:#105cb6;
+}
+
+.ui-state-default:hover, .ui-widget-content .ui-state-default:hover, .ui-widget-header .ui-state-default:hover {
+    background: rgba(16, 117, 255, 0.9) none repeat scroll 0 0;
+}
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus{
+    background: #105cb6;
+}
+
+.ui-widget-content a {
+    color: #333;
+}
+
+.ui-widget-content {
+    background: #fff;
 }
 
 .ui-dialog {
@@ -33,34 +56,38 @@
     height: 350px;
 }
 
-/* buttons */
-
-#addEventButton {
-    position: absolute;
-    margin-top: -32px;
-    left: 175px;
-    font-size: 14px;
+#map img {
+    max-width: none !important;
 }
 
 /* event stuff */
 
+#events {
+    background: #FFF;
+    overflow: hidden;
+    width: 100%;
+    padding: 10px 0;
+    position: relative;
+}
+
 .event-view {
     background: #FFF;
-    width: 80%;
-    margin: 0 auto 5px auto;
+    width: 99%;
+    margin: 0 auto 6px auto;
     padding: 1em;
     -webkit-box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 1);
     box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 1);
     outline: 1px solid #999;
-    font-family: 'GentiumBasicRegular', Tahoma, Geneva, sans-serif;
     position: relative;
     transition: box-shadow .25s;
     -webkit-transition: -webkit-box-shadow .25s;
+    font-size: 16px;
 }
 
 .event-view:hover {
     -webkit-box-shadow: 5px 5px 10px 0px rgba(130, 180, 200, 1);
     box-shadow: 5px 5px 10px 0px rgba(130, 180, 200, 1);
+    cursor: pointer;
 }
 
 .event-view-featured {
@@ -68,12 +95,12 @@
     top: 4px;
     left: 4px;
     background-image: url('../images/star_16.png');
-    width: 16px;
+    width: 16px;`
     height: 16px;
 }
 
 .event-view-type {
-    font-size: 2em;
+    font-size: 1.5em;
     width: 25%;
     display: block;
     float: left;
@@ -118,9 +145,9 @@
     margin-right: 8px;
 }
 
-.event-view-album-href {
-    text-decoration: none;
-    color: #333333;
+.event-view-inventory {
+    display: inline-block;
+    margin-right: 8px;
 }
 
 .event-view-onlineItem {
@@ -133,15 +160,34 @@
     margin-right: 5px;
 }
 
-.event-view-new-button {
-    position: absolute;
-    margin-top: -32px;
-    font-size: 14px;
-    left: 13em;
-}
-
 .event-view .ui-button {
     font-size: .9em;
+}
+
+#event-listings {
+    height: 400px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding-top: 10px;
+}
+
+.event-view-description {
+    margin: .5em 0 .5em 2em;
+    width: 60%;
+    display: inline-block;
+    min-width: 400px;
+}
+
+#event-listing-none {
+    color: #666;
+    text-align: center;
+    width: 100%;
+    display: block;
+    font-size: 2em;
+}
+
+.event-listing-folder {
+    display: none;
 }
 
 /* filter stuff */
@@ -151,13 +197,14 @@
 }
 
 .filter-collection-pane {
-    width: 80%;
     margin: 0 auto;
-    padding: 1em;
-    background: #666;
+    background: #105cb6;
     position: relative;
-    height: 25px;
     display: none;
+    width: 100%;
+    padding: 10px;
+    height: 40px;
+    overflow: visible !important;
 }
 
 #filterButton {
@@ -172,7 +219,13 @@
     position: absolute;
     top: .4em;
     right: .4em;
-    border: 1px solid #CCC;
+    background: #FFF;
+    color: #000;
+    border: 1px solid rgb(204, 204, 204);
+}
+
+#filterMenuButton:hover {
+    background: rgb(235, 235, 235);
 }
 
 .filter-collection-menu-view {
@@ -193,6 +246,11 @@
 .filter-inventory {
     padding: 0 .5em;
     cursor: pointer;
+    line-height: 24px;
+}
+
+.filter-view-title {
+    cursor: default;
 }
 
 .remove-filter-icon {
@@ -204,6 +262,31 @@
 
 .remove-filter-icon:hover {
     background-image: url(ui-darkness/images/ui-icons_a83300_256x240.png);
+}
+
+.ui-dialog .inventory-collection-view {
+    padding: .5em 0;
+}
+
+#inventoryFilter {
+    color: #333;
+}
+
+#inventoryFilterType {
+    width: 100%;
+    margin-bottom: 2em;
+}
+
+.inventory-view-listing {
+    float: left;
+    margin-left: 5%;
+    width: 26%;
+}
+
+.inventory-view-checkbox {
+    position: relative;
+    top: 3px;
+    margin-right: 3px;
 }
 
 /* filter fancy input stuff */
@@ -278,72 +361,43 @@
     width: auto !important;
 }
 
-#event-listings {
-    height: 400px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    padding-top: 10px;
-}
-
-.event-view-description {
-    margin: .5em 0 .5em 2em;
-    width: 60%;
-    display: inline-block;
-    min-width: 400px;
-}
-
-/*.event-listing-onlineItem-label {
-    float: right;
-    margin-top: 10px;
-    display: inline-block;
-}*/
-
-.event-view-inventory {
-    display: inline-block;
-    width: 30%;
-}
-
-.event-view-inventory .categoryHeader {
-    list-style: none;
-    font-weight: bold;
-    margin-left: -30px;
-    font-size: 1.1em;
-}
-
-#event-listing-none {
-    color: #666;
-    font-family: 'GentiumBasicRegular', Tahoma, Geneva, sans-serif;
-    text-align: center;
-    width: 100%;
+/* Overlays */
+.large-overlay {
     display: block;
-    font-size: 2em;
+    position: fixed;
+    width: 50%;
+    height: 50%;
+    top: 25%;
+    left: 25%;
 }
 
-.event-listing-folder {
-    display: none;
+.large-overlay-shadow {
+    -webkit-box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 1);
+    box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 1);
 }
 
-.inventoryColumn {
+#photoViewer {
+    background: #FFF;
+    border: none;
+}
+
+#photoViewerSpinner {
+    background: #000;
+    opacity: .5;
+    background: url('../images/loading.gif') center center no-repeat;
+}
+
+#inventoryViewer {
+    background: #FFF;
+    font-size: 1.5em;
+    padding: 1em;
+}
+
+.inventory-view-bullet {
     float: left;
-    margin-left: 20px;
-    width: 30%;
-}
-
-.inventoryColumn .categoryHeader {
-    font-weight: bold;
-}
-
-.inventoryColumn input {
-    margin-left: 20px;
-}
-
-.inventoryFilterButtonset {
-    display: inline-block;
-}
-
-.inventoryColumn label {
-    margin: 2px 0;
-    display: inline-block;
+    position: relative;
+    top: 5px;
+    margin-right: .3em;
 }
 
 @media screen and (max-width: 640px) {
@@ -365,21 +419,4 @@
     .event-view-expand {
         zoom: 2;
     }
-}
-
-#map img {
-    max-width: none !important;
-}
-
-#photoViewer {
-    display: block;
-    position: fixed;
-    width: 50%;
-    height: 50%;
-    top: 25%;
-    left: 25%;
-    background: white;
-    border: none;
-    -webkit-box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 1);
-    box-shadow: 5px 5px 10px 0px rgba(0, 0, 0, 1);
 }
