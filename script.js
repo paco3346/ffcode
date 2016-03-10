@@ -105,7 +105,16 @@ var script = function(){
     });
 
     var EventCollection = Backbone.Collection.extend({
-        model: EventModel
+        model: EventModel,
+        comparator: function(item) {
+            var startDate = item.get("start_date");
+            var endDate = item.get("start_date");
+            return [
+                item.get("featured") ? -1 : 1,
+                empty(startDate) ? null : startDate.getTime(),
+                empty(endDate) ? null : endDate.getTime()
+            ];
+        }
     });
 
     var EventView = Backbone.View.extend({
@@ -113,14 +122,14 @@ var script = function(){
         className: "event-view",
         events: {
             'click .event-view-expand' : 'toggleFolder',
-            'click .event-view-album' : 'openLightbox',
+            'click .event-view-album' : 'openPhotos',
             'click .event-view-inventory' : 'openInventory',
             'mouseover' : 'hoverOver',
             'mouseleave' : 'hoverOut',
             'click' : 'zoomToMarker'
         },
         initialize: function() {
-            _(this).bindAll('render', 'toggleFolder', 'openLightbox', 'createMarker', '_createMarker', 'hoverOver',
+            _(this).bindAll('render', 'toggleFolder', 'openPhotos', 'createMarker', '_createMarker', 'hoverOver',
                 'hoverOut', 'applyFilter', 'hide', 'show', '_removeMarker', 'checkMapVisibility', 'zoomToMarker',
                 'openInventory', 'containsInventoryFilter');
             if(statesInUse.indexOf(this.model.get("state")) == -1) statesInUse.push(this.model.get("state"));
@@ -171,11 +180,11 @@ var script = function(){
                 });
             }
         },
-        openLightbox: function(e) {
+        openPhotos: function(e) {
             e.preventDefault();
             e.stopPropagation();
             var url = driveListUrl + this.model.get("album") + '#grid';
-            eventCollectionView.openLightbox(url);
+            eventCollectionView.openPhotos(url);
         },
         createMarker: function() {
             this._removeMarker();
@@ -199,7 +208,8 @@ var script = function(){
                 var marker = new google.maps.Marker({
                     map: map,
                     position: new google.maps.LatLng(this.model.get("location").lb, this.model.get("location").mb),
-                    icon: icon
+                    icon: icon,
+                    zIndex: this.model.get("featured") ? 100 : 1
                 });
                 var self = this;
                 google.maps.event.addListener(marker, 'click', function() {
@@ -320,17 +330,20 @@ var script = function(){
         className: 'event-collection-view',
         el: $("#event-listings"),
         initialize: function() {
-            _(this).bindAll('render', 'renderEvent', 'applyFilter', 'openLightbox', 'closeLightbox',
-                'openInventoryViewer', 'closeInventoryViewer', 'setupBodyListener');
+            _(this).bindAll('render', 'renderEvent', 'applyFilter', 'openPhotos', 'closeLightbox',
+                'openInventoryViewer', 'setupBodyListener');
             this.collection.bind("fetch", this.render);
             this.collection.bind("applyFilter", this.applyFilter);
+            this.lightbox = $('#lightbox').hide();
             this.iframe = $('#photoViewer').hide();
-            this.iframeSpinner = $('#photoViewerSpinner').hide();
+            this.lightboxSpinner = $('#lightboxSpinner').hide();
             this.inventoryViewer = $('#inventoryViewer').hide();
+            this.eventsSpinner = $('#eventsSpinner');
             this.setupBodyListener();
         },
         render: function() {
             var self = this;
+            this.eventsSpinner.hide();
             this.collection.each(function(eventData) {
                 self.renderEvent(eventData, false);
             });
@@ -349,38 +362,37 @@ var script = function(){
                 event.trigger("applyFilter2");
             });
         },
-        openLightbox: function(url) {
-            this.iframeSpinner.show();
+        openPhotos: function(url) {
             this.iframe.attr('src', url).show();
+            this.lightboxSpinner.show();
+            this.lightbox.fadeIn(200);
         },
         closeLightbox: function() {
-            this.iframe.hide();
-            this.iframe.attr('src', 'about:blank');
-            this.iframeSpinner.hide();
+            var self = this;
+            this.lightbox.fadeOut(200, function() {
+                self.inventoryViewer.hide();
+                self.iframe.hide();
+                self.iframe.attr('src', 'about:blank');
+                self.lightboxSpinner.hide();
+            });
         },
         openInventoryViewer: function(inventory) {
-            this.inventoryViewer.empty();
-            this.inventoryViewer.show();
-            this.inventoryViewer.append(eventInventoryViewTemplate({inventoryItems: inventory.toJSON()}));
-        },
-        closeInventoryViewer: function() {
-            this.inventoryViewer.hide();
+            this.inventoryViewer.empty().show().append(eventInventoryViewTemplate({inventoryItems: inventory.toJSON()}));
+            this.lightbox.fadeIn(200);
         },
         setupBodyListener: function() {
             var self = this;
             this.iframe.load(function () {
-                self.iframeSpinner.hide();
+                self.lightboxSpinner.hide();
             });
             $('body').click(function(e) {
                 //don't close the lightbox if the spinner is clicked
-                if (e.target != self.iframeSpinner[0] && e.target != self.inventoryViewer[0]) {
+                if (e.target != self.lightboxSpinner[0] && e.target != self.inventoryViewer[0]) {
                     self.closeLightbox();
-                    self.closeInventoryViewer();
                 }
             }).keyup(function(e) {
                 if(e.keyCode == 27) {
                     self.closeLightbox();
-                    self.closeInventoryViewer();
                 }
             });
         }
@@ -643,6 +655,7 @@ var script = function(){
         initialize: function() {
             _(this).bindAll('render', 'open', 'close', 'applyFilter');
             this.collection.bind("fetch", this.render);
+            this.$el.hide();
         },
         render: function() {
             var el = $(this.el);

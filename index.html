@@ -18,6 +18,7 @@
 <div id="events">
     <span id="event-listing-none">There are no available events.<br/>Change your filter or zoom out on the map.</span>
     <div id="event-listings"></div>
+    <div id="eventsSpinner"></div>
 </div>
 <div id="inventoryFilter">
     <div id="inventoryFilterType">
@@ -28,8 +29,11 @@
         <label for="invTypeAny">Events include any of the following</label>
     </div>
 </div>
-<div id="inventoryViewer" class="large-overlay large-overlay-shadow"></div>
-<iframe id="photoViewer" class="large-overlay large-overlay-shadow"></iframe>
-<div id="photoViewerSpinner" class="large-overlay"></div>
+<div id="lightbox">
+    <div id="inventoryViewer" class="large-overlay"></div>
+    <iframe id="photoViewer" class="large-overlay"></iframe>
+    <div id="lightboxSpinner" class="large-overlay"></div>
+    <div id="lightboxClose"><div class="ui-icon-closethick ui-icon"></div></div>
+</div>
 
 </body>
