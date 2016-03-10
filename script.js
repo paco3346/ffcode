@@ -364,6 +364,7 @@ var script = function(){
         },
         openPhotos: function(url) {
             this.iframe.attr('src', url).show();
+            this.inventoryViewer.hide();
             this.lightboxSpinner.show();
             this.lightbox.fadeIn(200);
         },
@@ -377,6 +378,7 @@ var script = function(){
             });
         },
         openInventoryViewer: function(inventory) {
+            this.iframe.hide();
             this.inventoryViewer.empty().show().append(eventInventoryViewTemplate({inventoryItems: inventory.toJSON()}));
             this.lightbox.fadeIn(200);
         },
